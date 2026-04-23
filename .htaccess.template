@@ -1,0 +1,17 @@
+<FilesMatch "(\.(sqlite|db)$|^\.ht)">
+    Require all denied
+</FilesMatch>
+
+AuthType Basic
+AuthName "Authorized Access Only"
+AuthUserFile [/PATH_TO/.htpasswd]
+
+Require valid-user
+
+<Files "counts.json">
+    Require all granted
+</Files>
+
+<FilesMatch "\.(css|js)$">
+    Require all granted
+</FilesMatch>

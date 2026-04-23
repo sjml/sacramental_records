@@ -1,0 +1,4 @@
+/tmp
+/site/.ht*
+/site/sacraments.db
+/scripts/deploy.sh
