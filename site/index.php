@@ -1,7 +1,6 @@
 <?php
 	$db = new SQLite3("./sacraments.db");
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,12 +17,12 @@
 		<input type="date" name="sac-date" id="sac-date">
 		<select name="sac-type" id="sac-type" required>
 			<option value=""></option>
-			<option value="mass">Mass</option>
-			<option value="baptism">Baptism</option>
-			<option value="marriage">Marriage</option>
-			<option value="anointing">Anointing</option>
-			<option value="confession">Confession</option>
-			<option value="confirmation">Confirmation</option>
+			<option value="Mass">Mass</option>
+			<option value="Baptism">Baptism</option>
+			<option value="Marriage">Marriage</option>
+			<option value="Anointing">Anointing</option>
+			<option value="Confession">Confession</option>
+			<option value="Confirmation">Confirmation</option>
 		</select>
 		<input type="text" name="sac-name-or-number" id="sac-name-or-number" placeholder="Name or Number">
 		<input type="text" name="sac-location" id="sac-location" placeholder="Location" required>
@@ -31,8 +30,8 @@
 		<input type="submit" value="Submit">
 	</form>
 
-	<table>
-		<tr>
+	<table class="sacraments_table">
+		<tr class="heading">
 			<th>Date</th>
 			<th>Sacrament</th>
 			<th>Name / Number</th>
@@ -40,7 +39,7 @@
 			<th>Notes</th>
 		</tr>
 		<?php
-			$res = $db->query("SELECT * FROM sacraments ORDER BY date DESC LIMIT 50");
+			$res = $db->query("SELECT * FROM sacraments ORDER BY id DESC LIMIT 50");
 			while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
 				echo "<tr>";
 				echo "<td>" . $row["date"] . "</td><td>" . $row["sacrament"] . "</td><td>" . $row["name_number"] . "</td><td>" . $row["location"] . "</td><td>" . $row["notes"] . "</td>";
@@ -57,7 +56,7 @@
 		const sacPicker = document.getElementById("sac-type");
 		const sacData = document.getElementById("sac-name-or-number");
 		sacPicker.onchange = (evt) => {
-			if (evt.target.value === "confession") {
+			if (evt.target.value === "Confession") {
 				sacData.type = "number";
 				sacData.min = 1;
 				sacData.value = 1;
