@@ -8,7 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sacramental Record Entry</title>
 
-	<script src="./lib/autoComplete.js-10.2.10/dist/autoComplete.js"></script>
+	<script src="./lib/autoComplete.js-10.2.10/dist/autoComplete.min.js"></script>
 	<link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -39,6 +39,7 @@
 		</div>
 	</form>
 
+	<p class="table-label">(Last 50 entries, reverse ordered by time)</p>
 	<table class="sacraments_table">
 		<tr class="heading">
 			<th>Date</th>
@@ -152,7 +153,15 @@
 							const sel = evt.detail.selection.value;
 							ace.input.value = sel;
 						},
-					}
+						results: (evt) => {
+							const list = targetElement.nextElementSibling;
+							if (list) {
+								const rect = targetElement.getBoundingClientRect();
+								const available = window.innerWidth - rect.left - 25;
+								list.style.maxWidth = `${available}px`;
+							}
+						}
+					},
 				}
 			});
 		}
