@@ -5,8 +5,8 @@ import sqlite3
 
 os.chdir(os.path.join(os.path.dirname(__file__), ".."))
 
-CSV_PATH = os.path.join("tmp", "records.csv") # exported from old Google Sheet
-DB_PATH = os.path.join("site", "sacraments.db")
+CSV_PATH = "./tmp/records.csv" # exported from old Google Sheet
+DB_PATH = "./site/sacraments.db"
 
 if os.path.exists(DB_PATH):
     print("ERROR: Database file already exists!")
