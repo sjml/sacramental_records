@@ -39,23 +39,27 @@
 		</div>
 	</form>
 
-	<p class="table-label">(Last 50 entries, reverse ordered by time)</p>
-	<table class="sacraments_table">
-		<tr class="heading">
-			<th>Date</th>
-			<th>Sacrament</th>
-			<th>Name / Number</th>
-			<th>Location</th>
-			<th>Notes</th>
-		</tr>
-		<?php
-			$res = $db->query("SELECT * FROM sacraments ORDER BY id DESC LIMIT 50");
-			while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
-				echo "<tr>";
-				echo "<td>" . $row["date"] . "</td><td>" . $row["sacrament"] . "</td><td>" . $row["name_number"] . "</td><td>" . $row["location"] . "</td><td>" . $row["notes"] . "</td>";
-				echo "</tr>";
-			}
-		?>
+	<p class="table-label">(Last 50 entries, reverse ordered by time; <a href="./table.php">view full data</a>)</p>
+	<table class="sacraments-table">
+		<thead>
+			<tr>
+				<th>Date</th>
+				<th>Sacrament</th>
+				<th>Name / Number</th>
+				<th>Location</th>
+				<th>Notes</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php
+				$res = $db->query("SELECT * FROM sacraments ORDER BY id DESC LIMIT 50");
+				while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+					echo "<tr>";
+					echo "<td>" . $row["date"] . "</td><td>" . $row["sacrament"] . "</td><td>" . $row["name_number"] . "</td><td>" . $row["location"] . "</td><td>" . $row["notes"] . "</td>";
+					echo "</tr>";
+				}
+			?>
+		</tbody>
 	</table>
 
 
