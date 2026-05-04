@@ -12,17 +12,26 @@ $limit = isset($_GET["limit"]) ? (int)$_GET["limit"] : 50;
 $page = isset($_GET["page"]) ? (int)$_GET["page"] : 1;
 $offset = ($page - 1) * $limit;
 $search = isset($_GET["search"]) ? $_GET["search"] : "";
+$sacrament_filter = isset($_GET["sacrament_filter"]) ? $_GET["sacrament_filter"] : "";
 $sort = (isset($_GET["sort"]) && in_array($_GET["sort"], $column_list)) ? $_GET["sort"] : "id";
 $order = (isset($_GET["order"]) && strtolower($_GET["order"]) === "asc") ? "asc" : "desc";
 
-$search_clause = "1=1";
+$conditions = ["1=1"];
 if ($search !== "") {
-	$search_clause = "(date LIKE :s OR sacrament LIKE :s OR name_number LIKE :s OR location LIKE :s OR notes LIKE :s)";
+	$conditions[] = "(date LIKE :s OR name_number LIKE :s OR location LIKE :s OR notes LIKE :s)";
 }
+if ($sacrament_filter !== "") {
+	$conditions[] = "sacrament = :sac";
+}
+
+$search_clause = implode(" AND ", $conditions);
 
 $count_stmt = $db->prepare("SELECT COUNT(*) as total FROM sacraments WHERE $search_clause");
 if ($search !== "") {
 	$count_stmt->bindValue(":s", "%$search%", SQLITE3_TEXT);
+}
+if ($sacrament_filter !== "") {
+	$count_stmt->bindValue(":sac", $sacrament_filter, SQLITE3_TEXT);
 }
 $total_rows = $count_stmt->execute()->fetchArray(SQLITE3_ASSOC)["total"];
 $total_pages = ceil($total_rows / $limit);
@@ -31,6 +40,9 @@ $query = "SELECT * FROM sacraments WHERE $search_clause ORDER BY $sort $order LI
 $stmt = $db->prepare($query);
 if ($search !== "") {
 	$stmt->bindValue(":s", "%$search%", SQLITE3_TEXT);
+}
+if ($sacrament_filter !== "") {
+	$stmt->bindValue(":sac", $sacrament_filter, SQLITE3_TEXT);
 }
 $stmt->bindValue(":limit", $limit, SQLITE3_INTEGER);
 $stmt->bindValue(":offset", $offset, SQLITE3_INTEGER);
@@ -42,6 +54,25 @@ function generateSortUrlParam($col, $current_sort, $current_order) {
 	$params["sort"] = $col;
 	$params["order"] = $new_order;
 	$params["page"] = 1;
+	return "?" . http_build_query($params);
+}
+
+function getSortIcon($col, $current_sort, $current_order) {
+	if ($col !== $current_sort) {
+		return "";
+	}
+	return $current_order === "asc" ? " ▲" : " ▼";
+}
+
+function generateFilterUrl($value, $type = "search") {
+	$params = $_GET;
+	if ($type === "sacrament") {
+			$params["sacrament_filter"] = $value;
+		}
+		else {
+			$params["search"] = $value;
+		}
+	$params["page"] = 1; // reset on new search
 	return "?" . http_build_query($params);
 }
 
@@ -84,6 +115,15 @@ function renderPagination($page, $total_pages, $total_rows) {
 	<form method="get">
 		<input type="text" name="search" placeholder="Search all fields..." value="<?= clean($search) ?>">
 
+		<select name="sacrament_filter" onchange="this.form.submit();">
+			<option value="">-- All Sacraments --</option>
+			<?php
+				$sacraments = ["Mass", "Baptism", "Marriage", "Anointing", "Confession", "Confirmation"];
+				foreach ($sacraments as $sac): ?>
+					<option value="<?= $sac ?>" <?= $sacrament_filter === $sac ? "selected" : "" ?>><?= $sac ?></option>
+				<?php endforeach; ?>
+		</select>
+
 		<label>Show:</label>
 		<select name="limit" onchange="this.form.submit();">
 			<option value="25" <?= $limit == 25 ? "selected" : "" ?>>25</option>
@@ -104,11 +144,11 @@ function renderPagination($page, $total_pages, $total_rows) {
 	<table class="sacraments-table">
 		<thead>
 			<tr>
-				<th><a href="<?= generateSortUrlParam("date", $sort, $order) ?>">Date</a></th>
-				<th><a href="<?= generateSortUrlParam("sacrament", $sort, $order) ?>">Sacrament</a></th>
-				<th><a href="<?= generateSortUrlParam("name_number", $sort, $order) ?>">Name / Number</a></th>
-				<th><a href="<?= generateSortUrlParam("location", $sort, $order) ?>">Location</a></th>
-				<th><a href="<?= generateSortUrlParam("notes", $sort, $order) ?>">Notes</a></th>
+				<th><a href="<?= generateSortUrlParam("date", $sort, $order) ?>">Date<?= getSortIcon("date", $sort, $order) ?></a></th>
+				<th><a href="<?= generateSortUrlParam("sacrament", $sort, $order) ?>">Sacrament<?= getSortIcon("sacrament", $sort, $order) ?></a></th>
+				<th><a href="<?= generateSortUrlParam("name_number", $sort, $order) ?>">Name / Number<?= getSortIcon("name_number", $sort, $order) ?></a></th>
+				<th><a href="<?= generateSortUrlParam("location", $sort, $order) ?>">Location<?= getSortIcon("location", $sort, $order) ?></a></th>
+				<th><a href="<?= generateSortUrlParam("notes", $sort, $order) ?>">Notes<?= getSortIcon("notes", $sort, $order) ?></a></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -117,9 +157,13 @@ function renderPagination($page, $total_pages, $total_rows) {
 			?>
 				<tr>
 					<td><?= clean($row["date"]) ?></td>
-					<td><?= clean($row["sacrament"]) ?></td>
+					<td>
+						<a href="<?= generateFilterUrl($row["sacrament"], "sacrament") ?>"><?= clean($row["sacrament"]) ?></a>
+					</td>
 					<td><?= clean($row["name_number"]) ?></td>
-					<td><?= clean($row["location"]) ?></td>
+					<td>
+						<a href="<?= generateFilterUrl($row["location"], "search") ?>"><?= clean($row["location"]) ?></a>
+					</td>
 					<td><?= clean($row["notes"]) ?></td>
 				</tr>
 			<?php
