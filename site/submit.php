@@ -49,6 +49,14 @@ if (count($dates) > 0) {
 		}
 
 		$db->exec("COMMIT");
+
+		$count_results = $db->query("SELECT sacrament, COUNT(*) as count FROM sacraments GROUP BY sacrament");
+		$stats = [];
+		while ($row = $count_results->fetchArray(SQLITE3_ASSOC)) {
+			$stats[$row["sacrament"]] = $row["count"];
+		}
+
+		file_put_contents("counts.json", json_encode($stats, JSON_PRETTY_PRINT));
 	}
 	catch (Exception $e) {
 		$db->exec("ROLLBACK");
