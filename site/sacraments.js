@@ -63,34 +63,3 @@ rowContainer.onclick = (evt) => {
 		evt.target.closest(".entry-row").remove();
 	}
 };
-
-function initAutoComplete(targetElement) {
-	const ace = new autoComplete({
-		data: {
-			src: locationData,
-		},
-		resultItem: {
-			highlight: true,
-		},
-		selector: `#${targetElement.id}`,
-		events: {
-			input: {
-				selection: (evt) => {
-					const sel = evt.detail.selection.value;
-					ace.input.value = sel;
-				},
-				results: (evt) => {
-					const list = targetElement.nextElementSibling;
-					if (list) {
-						const rect = targetElement.getBoundingClientRect();
-						const available = window.innerWidth - rect.left - 25;
-						list.style.maxWidth = `${available}px`;
-					}
-				}
-			},
-		}
-	});
-}
-
-// set up the first row
-initAutoComplete(document.querySelector("#sac-location__1"));

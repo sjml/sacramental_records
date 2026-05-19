@@ -8,26 +8,35 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sacramental Record Entry</title>
 
-	<script src="./lib/autoComplete.js-10.2.10/dist/autoComplete.min.js"></script>
 	<link rel="stylesheet" href="./style.css">
 </head>
 <body>
 	<h1>Sacramental Record Entry</h1>
+	<datalist id="location_set">
+		<?php
+			$res = $db->query("SELECT DISTINCT location FROM sacraments");
+			while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+				if ($row["location"] !== null) {
+					echo "<option>" . $row["location"] . "</option>" . PHP_EOL;
+				}
+			}
+		?>
+	</datalist>
 	<form action="submit.php" method="post">
 		<div id="row-container">
 			<div class="entry-row">
 				<input type="date" name="sac-date[]" class="sac-date" required>
 				<select name="sac-type[]" class="sac-type" required>
-					<option value=""></option>
-					<option value="Mass">Mass</option>
-					<option value="Baptism">Baptism</option>
-					<option value="Marriage">Marriage</option>
-					<option value="Anointing">Anointing</option>
-					<option value="Confession">Confession</option>
-					<option value="Confirmation">Confirmation</option>
+					<option></option>
+					<option>Mass</option>
+					<option>Baptism</option>
+					<option>Marriage</option>
+					<option>Anointing</option>
+					<option>Confession</option>
+					<option>Confirmation</option>
 				</select>
 				<input type="text" name="sac-name-or-number[]" class="sac-name-or-number" placeholder="Name or Number">
-				<input type="text" name="sac-location[]" class="sac-location" id="sac-location__1" placeholder="Location" required>
+				<input type="text" name="sac-location[]" class="sac-location" id="sac-location__1" placeholder="Location" required list="location_set">
 				<input type="text" name="sac-notes[]" class="sac-notes" placeholder="Notes">
 				<button type="button" class="remove-row" style="display:none;">✕</button>
 			</div>
@@ -62,19 +71,6 @@
 		</tbody>
 	</table>
 
-
-	<script>
-		const locationData = [
-			<?php
-				$res = $db->query("SELECT DISTINCT location FROM sacraments");
-				while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
-					if ($row["location"] !== null) {
-						echo '"' . addslashes($row["location"]) . '",' . PHP_EOL;
-					}
-				}
-			?>
-		];
-	</script>
 	<script src="./sacraments.js"></script>
 </body>
 </html>
