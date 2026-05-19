@@ -14,7 +14,7 @@
 	<h1>Sacramental Record Entry</h1>
 	<datalist id="location_set">
 		<?php
-			$res = $db->query("SELECT DISTINCT location FROM sacraments");
+			$res = $db->query("SELECT DISTINCT location FROM sacraments ORDER BY id DESC");
 			while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
 				if ($row["location"] !== null) {
 					echo "<option>" . $row["location"] . "</option>" . PHP_EOL;
