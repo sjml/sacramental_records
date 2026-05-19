@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -eu
+
+#### CONFIG
+REMOTE_USER=
+REMOTE_HOST=
+REMOTE_PATH=
+
+LOCAL_DIR=
+
+KEEP_VERSIONS=10
+#### END CONFIG
+
+
+
+##########
+REMOTE_FILENAME="$(basename "$REMOTE_PATH")"
+if [[ "$REMOTE_FILENAME" == *.* ]]; then
+	FILE_PREFIX="${REMOTE_FILENAME%.*}"
+	FILE_EXTENSION=".${REMOTE_FILENAME##*.}"
+else
+	FILE_PREFIX="$REMOTE_FILENAME"
+	FILE_EXTENSION=""
+fi
+
+mkdir -p "$LOCAL_DIR"
+TIMESTAMP="$(date '+%Y-%m-%d-%H%M%S')"
+DEST_FILE="${LOCAL_DIR}/${FILE_PREFIX}-${TIMESTAMP}${FILE_EXTENSION}"
+REMOTE_FULL_PATH="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
+
+echo "Downloading <${REMOTE_FULL_PATH}>..."
+rsync -azv "${REMOTE_FULL_PATH}" "${DEST_FILE}"
+echo "Download complete: ${DEST_FILE}"
+
+if (( KEEP_VERSIONS < 0 )); then
+	echo "Rotation disabled."
+	exit 0
+fi
+
+echo "Rotating versions (keeping newest ${KEEP_VERSIONS})..."
+
+mapfile -t FILES < <(
+	ls -1t "${LOCAL_DIR}/${FILE_PREFIX}-"*"${FILE_EXTENSION}" 2>/dev/null || true
+)
+
+if (( ${#FILES[@]} > KEEP_VERSIONS )); then
+	for OLD_FILE in "${FILES[@]:KEEP_VERSIONS}"; do
+		echo "Removing: $OLD_FILE"
+		rm -f "$OLD_FILE"
+	done
+fi
+
+echo "Done."

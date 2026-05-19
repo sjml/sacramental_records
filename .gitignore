@@ -3,3 +3,6 @@
 /site/counts.json
 /site/sacraments.db
 /scripts/deploy.sh
+/scripts/backup_remote_db.sh
+
+/db_backup
