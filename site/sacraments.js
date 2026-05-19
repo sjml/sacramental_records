@@ -51,7 +51,7 @@ addButton.onclick = () => {
 	newRow.querySelector("input[name='sac-notes[]']").value = "";
 	newRow.querySelector(".remove-row").style.display = "inline-block";
 
-	rowContainer.appendChild(newRow);
+	rowContainer.insertBefore(newRow, addButton);
 
 	initAutoComplete(locationField);
 

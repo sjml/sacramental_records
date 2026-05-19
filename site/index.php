@@ -41,10 +41,10 @@
 				<input type="text" name="sac-notes[]" class="sac-notes" placeholder="Notes">
 				<button type="button" class="remove-row" style="display:none;">✕</button>
 			</div>
+			<button type="button" id="add-row">+</button>
 		</div>
 
 		<div class="controls">
-			<button type="button" id="add-row">+</button>
 			<input type="submit" value="Submit">
 		</div>
 	</form>
